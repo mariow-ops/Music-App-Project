@@ -21,7 +21,6 @@ export default class HomePage extends Component {
   }
 
   async componentDidMount() {
-    console.log("hello")
     fetch("/api/user-in-room")
       .then((response) => response.json())
       .then((data) => {
