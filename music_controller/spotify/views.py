@@ -56,8 +56,9 @@ class IsAuthenticated(APIView):
             self.request.session.session_key)
         return Response({'status': is_authenticated}, status=status.HTTP_200_OK)
 
+
 class CurrentSong(APIView):
-     def get(self, request, format=None):
+    def get(self, request, format=None):
         room_code = self.request.session.get('room_code')
         room = Room.objects.filter(code=room_code)
         if room.exists():
@@ -67,7 +68,7 @@ class CurrentSong(APIView):
         host = room.host
         endpoint = "player/currently-playing"
         response = execute_spotify_api_request(host, endpoint)
-        
+
         if 'error' in response or 'item' not in response:
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
@@ -103,13 +104,14 @@ class CurrentSong(APIView):
 
         return Response(song, status=status.HTTP_200_OK)
 
-     def update_room_song(self, room, song_id):
+    def update_room_song(self, room, song_id):
         current_song = room.current_song
 
         if current_song != song_id:
             room.current_song = song_id
             room.save(update_fields=['current_song'])
             votes = Vote.objects.filter(room=room).delete()
+
 
 class PauseSong(APIView):
     def put(self, response, format=None):
@@ -118,9 +120,10 @@ class PauseSong(APIView):
         if self.request.session.session_key == room.host or room.guest_can_pause:
             pause_song(room.host)
             return Response({}, status=status.HTTP_204_NO_CONTENT)
-        
+
         return Response({}, status=status.HTTP_403_FORBIDDEN)
-    
+
+
 class PlaySong(APIView):
     def put(self, response, format=None):
         room_code = self.request.session.get('room_code')
@@ -128,8 +131,9 @@ class PlaySong(APIView):
         if self.request.session.session_key == room.host or room.guest_can_pause:
             play_song(room.host)
             return Response({}, status=status.HTTP_204_NO_CONTENT)
-        
+
         return Response({}, status=status.HTTP_403_FORBIDDEN)
+
 
 class SkipSong(APIView):
     def post(self, request, format=None):
@@ -141,6 +145,7 @@ class SkipSong(APIView):
         if self.request.session.session_key == room.host or len(votes) + 1 >= votes_needed:
             votes.delete()
             skip_song(room.host)
+        
         else:
             vote = Vote(user=self.request.session.session_key,
                         room=room, song_id=room.current_song)

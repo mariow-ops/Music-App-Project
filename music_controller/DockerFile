@@ -1,0 +1,20 @@
+# pull official base image
+FROM node:12
+
+# set working directory
+WORKDIR /app
+
+# install app dependencies
+COPY package*.json ./
+
+RUN npm install
+
+# add app
+COPY . .
+
+ENV PORT=8080
+
+EXPOSE 8080
+
+# start app
+CMD ["npm", "start"]
